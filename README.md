@@ -1,5 +1,7 @@
 # McDowell
 
+[![Build Status](https://travis-ci.org/willmadison/mcdowell.svg?branch=master)](https://travis-ci.org/willmadison/mcdowell)
+
 ![Cleo McDowell](http://mcdowells.mortenjonassen.dk/img/staff/cleo1.jpg)
 
 This is a Slack bot for the Atlanta Black Tech Slack.

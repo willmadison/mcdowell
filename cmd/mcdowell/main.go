@@ -26,6 +26,10 @@ func main() {
 		options = append(options, mcdowell.WithDebug())
 	}
 
+	if botToken == "" {
+		log.Fatalln("slack bot token is required for proper operation!")
+	}
+
 	client := slack.New(botToken)
 	rtm := client.NewRTM()
 	go rtm.ManageConnection()

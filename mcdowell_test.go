@@ -4,8 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"strings"
-
 	"github.com/nlopes/slack"
 	"github.com/willmadison/mcdowell"
 )
@@ -54,9 +52,13 @@ func TestBotHandlesTeamJoinEvents(t *testing.T) {
 		t.Error("sent message to", client.lastChannel, "expected message to go to", testUser.ID)
 	}
 
-	prefix := "Welcome " + testUser.Name + "!"
-	if !strings.HasPrefix(client.lastMessage, prefix) {
-		t.Error("got:", client.lastMessage, "which didn't start with the expected preamble:", prefix)
+	expected := `Yo Test User!
+
+I’d like to welcome you to the Atlanta Black Tech Family. Our mission is to improve the quality, quantity, and connections for people of African descent within the overall Metro Atlanta tech ecosystem.
+
+Please click on “Channels” to browse all of our sub-communities, and join the ones that are most relevant to you. Enjoy your time, and help us build the communities by inviting others in your network.`
+	if client.lastMessage != expected {
+		t.Error("got:", client.lastMessage, "wanted:", expected)
 	}
 
 	if !client.params.AsUser {

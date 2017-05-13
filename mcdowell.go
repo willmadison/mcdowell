@@ -68,11 +68,11 @@ func (b *Bot) initialize() error {
 
 // OnTeamJoined handles the appropriate behavior for when new team members join our slack.
 func (b *Bot) OnTeamJoined(event *slack.TeamJoinEvent) error {
-	message := `Welcome ` + event.User.Name + `!
+	message := `Yo ` + event.User.Name + `!
 
-We're so happy to have you as a part of the Atlanta Black Tech Family & Ecosystem.
+I’d like to welcome you to the Atlanta Black Tech Family. Our mission is to improve the quality, quantity, and connections for people of African descent within the overall Metro Atlanta tech ecosystem.
 
-Enjoy the community!`
+Please click on “Channels” to browse all of our sub-communities, and join the ones that are most relevant to you. Enjoy your time, and help us build the communities by inviting others in your network.`
 
 	params := slack.PostMessageParameters{AsUser: true, LinkNames: 1}
 	_, _, err := b.client.PostMessage(event.User.ID, message, params)
