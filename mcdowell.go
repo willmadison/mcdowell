@@ -5,6 +5,8 @@ import (
 
 	"log"
 
+	"strings"
+
 	"github.com/nlopes/slack"
 	"github.com/pkg/errors"
 )
@@ -74,6 +76,37 @@ Enjoy the community!`
 
 	params := slack.PostMessageParameters{AsUser: true, LinkNames: 1}
 	_, _, err := b.client.PostMessage(event.User.ID, message, params)
+
+	return err
+}
+
+var botEventTextToResponses = map[string]string{
+	"show me the money":     "The boy has got his own money! https://novembrepleut.files.wordpress.com/2011/06/zamundamoney_100.png",
+	"let me hold something": "I got you! https://novembrepleut.files.wordpress.com/2011/06/zamundamoney_100.png",
+	"soul glo":              "https://media.giphy.com/media/3Gz3vy81HkDa8/giphy.gif",
+}
+
+// OnNewMessage handles the appropriate behavior for when new interesting
+// messages happen in any channel the bot is listening in.
+func (b *Bot) OnNewMessage(event *slack.MessageEvent) error {
+	if event.BotID != "" || event.User == "" || event.SubType == "bot_message" {
+		return nil
+	}
+
+	eventText := strings.Trim(strings.ToLower(event.Text), " \n\r")
+
+	if b.Debug || b.Testing {
+		log.Printf("event: %+v\n", *event)
+		log.Println("got message:", eventText)
+	}
+
+	var err error
+	params := slack.PostMessageParameters{AsUser: true, UnfurlLinks: true}
+	for fragment, response := range botEventTextToResponses {
+		if strings.Contains(eventText, fragment) {
+			_, _, err = b.client.PostMessage(event.Channel, response, params)
+		}
+	}
 
 	return err
 }
