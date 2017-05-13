@@ -97,17 +97,21 @@ func TestShowMeTheMoney(t *testing.T) {
 		t.Error("sent message to", client.lastChannel, "expected message to go to", e.Channel)
 	}
 
-	expected := "The boy has got his own money! https://novembrepleut.files.wordpress.com/2011/06/zamundamoney_100.png"
-	if client.lastMessage != expected {
-		t.Error("got:", client.lastMessage, "wanted:", expected)
-	}
-
-	if !client.params.AsUser {
-		t.Error("expected message to be posted as the Cleo McDowell!")
-	}
-
+	expected := "https://novembrepleut.files.wordpress.com/2011/06/zamundamoney_100.png"
 	if !client.params.UnfurlLinks {
-		t.Error("expected message to be posted as the Cleo McDowell!")
+		t.Error("expected links to be unfurled!")
+	}
+
+	if len(client.params.Attachments) == 0 {
+		t.Fatal("expected there to be at least one attachment!")
+	}
+
+	if client.params.Attachments[0].ImageURL != expected {
+		t.Error("incorrect Soul Glo reaction url!")
+	}
+
+	if client.params.Attachments[0].Text != "The boy has got his own money!" {
+		t.Fatal("incorrect Soul Glo reaction url!")
 	}
 }
 
@@ -140,17 +144,25 @@ func TestLetMeHoldSomething(t *testing.T) {
 		t.Error("sent message to", client.lastChannel, "expected message to go to", e.Channel)
 	}
 
-	expected := "I got you! https://novembrepleut.files.wordpress.com/2011/06/zamundamoney_100.png"
-	if client.lastMessage != expected {
-		t.Error("got:", client.lastMessage, "wanted:", expected)
-	}
-
 	if !client.params.AsUser {
 		t.Error("expected message to be posted as the Cleo McDowell!")
 	}
 
 	if !client.params.UnfurlLinks {
 		t.Error("expected links to be unfurled!")
+	}
+
+	if len(client.params.Attachments) == 0 {
+		t.Fatal("expected there to be at least one attachment!")
+	}
+
+	expected := "https://novembrepleut.files.wordpress.com/2011/06/zamundamoney_100.png"
+	if client.params.Attachments[0].ImageURL != expected {
+		t.Fatal("incorrect Soul Glo reaction url!")
+	}
+
+	if client.params.Attachments[0].Text != "I got you!" {
+		t.Fatal("incorrect Soul Glo reaction url!")
 	}
 }
 
@@ -184,9 +196,6 @@ func TestSoulGlo(t *testing.T) {
 	}
 
 	expected := "https://media.giphy.com/media/3Gz3vy81HkDa8/giphy.gif"
-	if client.lastMessage != expected {
-		t.Error("got:", client.lastMessage, "wanted:", expected)
-	}
 
 	if !client.params.AsUser {
 		t.Error("expected message to be posted as the Cleo McDowell!")
@@ -194,6 +203,14 @@ func TestSoulGlo(t *testing.T) {
 
 	if !client.params.UnfurlLinks {
 		t.Error("expected links to be unfurled!")
+	}
+
+	if len(client.params.Attachments) == 0 {
+		t.Fatal("expected there to be at least one attachment!")
+	}
+
+	if client.params.Attachments[0].ImageURL != expected {
+		t.Fatal("incorrect Soul Glo reaction url! got:", client.params.Attachments[0].ImageURL)
 	}
 }
 

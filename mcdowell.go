@@ -80,10 +80,35 @@ Enjoy the community!`
 	return err
 }
 
-var botEventTextToResponses = map[string]string{
-	"show me the money":     "The boy has got his own money! https://novembrepleut.files.wordpress.com/2011/06/zamundamoney_100.png",
-	"let me hold something": "I got you! https://novembrepleut.files.wordpress.com/2011/06/zamundamoney_100.png",
-	"soul glo":              "https://media.giphy.com/media/3Gz3vy81HkDa8/giphy.gif",
+var botEventTextToResponses = map[string]func(*Bot, *slack.MessageEvent) error{
+	"show me the money":     heHasHisOwnMoney("The boy has got his own money!"),
+	"let me hold something": heHasHisOwnMoney("I got you!"),
+	"soul glo":              soulGlo,
+}
+
+func heHasHisOwnMoney(message string) func(*Bot, *slack.MessageEvent) error {
+	return func(b *Bot, event *slack.MessageEvent) error {
+		params := slack.PostMessageParameters{AsUser: true, UnfurlLinks: true}
+		params.Attachments = []slack.Attachment{
+			{
+				Text:     message,
+				ImageURL: "https://novembrepleut.files.wordpress.com/2011/06/zamundamoney_100.png",
+			},
+		}
+		_, _, err := b.client.PostMessage(event.Channel, "", params)
+		return err
+	}
+}
+
+func soulGlo(b *Bot, event *slack.MessageEvent) error {
+	params := slack.PostMessageParameters{AsUser: true, UnfurlLinks: true}
+	params.Attachments = []slack.Attachment{
+		{
+			ImageURL: "https://media.giphy.com/media/3Gz3vy81HkDa8/giphy.gif",
+		},
+	}
+	_, _, err := b.client.PostMessage(event.Channel, "", params)
+	return err
 }
 
 // OnNewMessage handles the appropriate behavior for when new interesting
@@ -101,10 +126,9 @@ func (b *Bot) OnNewMessage(event *slack.MessageEvent) error {
 	}
 
 	var err error
-	params := slack.PostMessageParameters{AsUser: true, UnfurlLinks: true}
 	for fragment, response := range botEventTextToResponses {
 		if strings.Contains(eventText, fragment) {
-			_, _, err = b.client.PostMessage(event.Channel, response, params)
+			err = response(b, event)
 		}
 	}
 
