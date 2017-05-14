@@ -1,9 +1,24 @@
-language: go
+sudo: required
 
-go:
-  - 1.8.x
+env:
+  - PROJECT_NAME=atlblacktech-slack-bot
+  - CLUSTER_NAME=atlblacktech-slack-bot
+  - CLOUDSDK_COMPUTE_ZONE=us-east1-c
 
-sudo: false
+services:
+  - docker
 
-script:
-  - go test
+before_install:
+  - export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
+  - echo "deb https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+  - curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+  - sudo apt-get update && sudo apt-get install google-cloud-sdk
+  - sudo apt-get install kubectl
+  - echo $GCLOUD_SERVICE_CREDS | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
+  - sudo gcloud auth activate-service-account --key-file ${HOME}/account-auth.json
+  - sudo gcloud -q config set project ${PROJECT_NAME}
+  - sudo gcloud -q config set container/cluster ${CLUSTER_NAME}
+  - sudo gcloud -q config set compute/zone ${CLOUDSDK_COMPUTE_ZONE}
+  - sudo gcloud -q container clusters get-credentials $CLUSTER_NAME
+
+script: ./testanddeploy.sh

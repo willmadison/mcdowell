@@ -1,0 +1,57 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: atlblacktech-slack-bot
+  labels:
+    app: atlblacktech-slack-bot
+    version: 810a0b285468265bf5a8486c051e641c61564b8f
+  annotations:
+    description: ATL Black Tech Slack Bot
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  minReadySeconds: 10
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      name: atlblacktech-slack-bot
+      labels:
+        app: atlblacktech-slack-bot
+      annotations:
+        description: ATL Black Tech Slack Bot
+    spec:
+      containers:
+      - name: atlblacktech-slack-bot
+        image: eu.gcr.io/atlblacktech-slack-bot/mcdowell:latest
+        ports:
+         - name: healthy-port
+           containerPort: 8088
+           hostPort: 8088
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: healthy-port
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: healthy-port
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+        resources:
+          requests:
+            cpu: 400m
+            memory: 150Mi
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: false
+        env:
+          - name: ABT_SLACK_BOT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: abt-secrets
+                key: token
+      restartPolicy: Always
+      dnsPolicy: ClusterFirst
