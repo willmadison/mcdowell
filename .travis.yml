@@ -17,6 +17,7 @@ before_script:
   - sudo apt-get update && sudo apt-get install google-cloud-sdk
   - sudo apt-get install kubectl
   - echo $GCLOUD_SERVICE_CREDS | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
+  - cat ${HOME}/gcloud-service-key.json
   - sudo gcloud auth activate-service-account $ACCOUNT_ADDRESS --key-file ${HOME}/gcloud-service-key.json
   - sudo gcloud -q config set project ${PROJECT_NAME}
   - sudo gcloud -q config set container/cluster ${CLUSTER_NAME}
