@@ -71,7 +71,7 @@ func main() {
 			WriteTimeout: 10 * time.Second,
 		}
 
-		log.Println("serving healthCheck request on", s.Addr)
+		log.Println("serving healthCheck request(s) on", s.Addr)
 		log.Fatal(s.ListenAndServe())
 	}()
 
