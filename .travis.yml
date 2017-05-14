@@ -1,9 +1,7 @@
 sudo: required
 
 env:
-  - PROJECT_NAME=atlblacktech-slack-bot
-  - CLUSTER_NAME=atlblacktech-slack-bot
-  - CLOUDSDK_COMPUTE_ZONE=us-east1-c
+  - PROJECT_NAME=atlblacktech-slack-bot CLUSTER_NAME=atlblacktech-slack-bot CLOUDSDK_COMPUTE_ZONE=us-east1-c
 
 services:
   - docker
