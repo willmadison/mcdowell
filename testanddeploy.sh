@@ -36,5 +36,4 @@ docker build -f ${PROJECT_DIR}/Dockerfile \
 rm -f "${PROJECT_DIR}/mcdowell"
 
 sudo gcloud docker -- push gcr.io/atlblacktech-slack-bot/mcdowell
-sudo chmod -R 766 ${HOME}/.kube
-kubectl set image deployment/atlblacktech-slack-bot atlblacktech-slack-bot=gcr.io/atlblacktech-slack-bot/mcdowell:latest
+sudo kubectl set image deployment/atlblacktech-slack-bot atlblacktech-slack-bot=gcr.io/atlblacktech-slack-bot/mcdowell:latest
