@@ -43,7 +43,7 @@ func main() {
 	}
 
 	go func() {
-		log.Println("listening for incoming events from slack...")
+		log.Println("listening for incoming events from Slack...")
 
 		for msg := range rtm.IncomingEvents {
 			switch message := msg.Data.(type) {

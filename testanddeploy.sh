@@ -35,5 +35,7 @@ docker build -f ${PROJECT_DIR}/Dockerfile \
 
 rm -f "${PROJECT_DIR}/mcdowell"
 
-sudo gcloud docker -- push gcr.io/atlblacktech-slack-bot/mcdowell:${TRAVIS_JOB_NUMBER}
+docker tag ${CONTAINER_NAME}:${CONTAINER_TAG} ${CONTAINER_NAME}:latest
+
+sudo gcloud docker -- push gcr.io/atlblacktech-slack-bot/mcdowell
 sudo kubectl set image deployment/atlblacktech-slack-bot atlblacktech-slack-bot=gcr.io/atlblacktech-slack-bot/mcdowell:${TRAVIS_JOB_NUMBER}
