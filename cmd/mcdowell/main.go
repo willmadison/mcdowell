@@ -22,10 +22,10 @@ func main() {
 	botToken := os.Getenv("ABT_SLACK_BOT_TOKEN")
 	devMode := os.Getenv("ABT_SLACK_BOT_DEV_MODE") == "true"
 
-	options := []func(*mcdowell.Bot){}
+	options := []func(*mcdowell.Bot){mcdowell.Versioned(version)}
 
 	if devMode {
-		options = append(options, mcdowell.WithDebug(), mcdowell.Versioned(version))
+		options = append(options, mcdowell.WithDebug())
 	}
 
 	if botToken == "" {
