@@ -243,11 +243,7 @@ func TestIgnoresBotMessages(t *testing.T) {
 		t.Fatal("encountered an unexpected error handling an OnTeamJoined event:", err)
 	}
 
-	if client.lastChannel != "" {
-		t.Error("sent message to", client.lastChannel, "expected no interaction.")
-	}
-
-	if client.lastMessage != "" {
-		t.Error("got:", client.lastMessage, "expected no interaction.")
+	if len(client.params.Attachments) > 0 {
+		t.Error("got:", len(client.params.Attachments), "attachments, expected no interaction.")
 	}
 }

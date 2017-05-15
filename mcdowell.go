@@ -2,6 +2,7 @@ package mcdowell
 
 import (
 	"context"
+	"fmt"
 
 	"log"
 
@@ -61,6 +62,14 @@ func (b *Bot) initialize() error {
 
 	if b.id == "" && !b.Testing {
 		return errors.New("could not find bot in the list of names, ensure the bot is called \"" + b.name + "\" ")
+	}
+
+	log.Printf("Initialized %s with ID: %s\n", b.name, b.id)
+
+	params := slack.PostMessageParameters{AsUser: true}
+	_, _, err = b.client.PostMessage(b.contributors["willmadison"], fmt.Sprintf(`sucessfully deployed %s...`, b.name), params)
+	if err != nil {
+		log.Printf(`failed to notify @willmadison regarding %s deployment`, b.name)
 	}
 
 	return nil
