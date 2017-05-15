@@ -14,6 +14,8 @@ import (
 	"github.com/willmadison/mcdowell"
 )
 
+var version = "Tip"
+
 func main() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
@@ -23,7 +25,7 @@ func main() {
 	options := []func(*mcdowell.Bot){}
 
 	if devMode {
-		options = append(options, mcdowell.WithDebug())
+		options = append(options, mcdowell.WithDebug(), mcdowell.Versioned(version))
 	}
 
 	if botToken == "" {
@@ -62,7 +64,7 @@ func main() {
 			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprintln(w, `{
-				"botVersion": "Tip"
+				"botVersion": "`+version+`"
 			}`)
 		}).Name("healthCheck").Methods("GET")
 

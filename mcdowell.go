@@ -22,6 +22,7 @@ type (
 		contributors map[string]string
 		Debug        bool
 		Testing      bool
+		Version      string
 	}
 
 	// SlackClient represents the interface of methods we rely on from the Slack client.
@@ -67,7 +68,7 @@ func (b *Bot) initialize() error {
 	log.Printf("Initialized %s with ID: %s\n", b.name, b.id)
 
 	params := slack.PostMessageParameters{AsUser: true}
-	_, _, err = b.client.PostMessage(b.contributors["willmadison"], fmt.Sprintf(`sucessfully deployed %s...`, b.name), params)
+	_, _, err = b.client.PostMessage(b.contributors["willmadison"], fmt.Sprintf(`sucessfully deployed %s v%s...`, b.name, b.Version), params)
 	if err != nil {
 		log.Printf(`failed to notify @willmadison regarding %s deployment`, b.name)
 	}
@@ -187,5 +188,12 @@ func WithDebug() func(*Bot) {
 func WithTesting() func(*Bot) {
 	return func(b *Bot) {
 		b.Testing = true
+	}
+}
+
+// Versioned enables Version to be set on the bot.
+func Versioned(version string) func(*Bot) {
+	return func(b *Bot) {
+		b.Version = version
 	}
 }
