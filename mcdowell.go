@@ -93,6 +93,7 @@ var botEventTextToResponses = map[string]func(*Bot, *slack.MessageEvent) error{
 	"show me the money":     heHasHisOwnMoney("The boy has got his own money!"),
 	"let me hold something": heHasHisOwnMoney("I got you!"),
 	"soul glo":              soulGlo,
+	"queen":                 queenToBe,
 }
 
 func heHasHisOwnMoney(message string) func(*Bot, *slack.MessageEvent) error {
@@ -114,6 +115,17 @@ func soulGlo(b *Bot, event *slack.MessageEvent) error {
 	params.Attachments = []slack.Attachment{
 		{
 			ImageURL: "https://media.giphy.com/media/3Gz3vy81HkDa8/giphy.gif",
+		},
+	}
+	_, _, err := b.client.PostMessage(event.Channel, "", params)
+	return err
+}
+
+func queenToBe(b *Bot, event *slack.MessageEvent) error {
+	params := slack.PostMessageParameters{AsUser: true, UnfurlLinks: true}
+	params.Attachments = []slack.Attachment{
+		{
+			ImageURL: "https://img.memesuper.com/bc7ab2796bdb983d5434fc842efcee0b_coming-to-america-aha-meme-coming-to-america_500-263.gif",
 		},
 	}
 	_, _, err := b.client.PostMessage(event.Channel, "", params)

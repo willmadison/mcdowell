@@ -216,6 +216,54 @@ func TestSoulGlo(t *testing.T) {
 	}
 }
 
+func TestQueenToBe(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	client := &mockSlack{}
+
+	m, err := mcdowell.NewBot(ctx, client, mcdowell.WithTesting())
+	if err != nil {
+		t.Fatal("encountered an unexpected error creating a new McDowell instance:", err)
+	}
+
+	message := slack.Msg{
+		Channel: "#general",
+		User:    "willmadison",
+		Text:    "I'm just looking for a queen",
+	}
+
+	e := &slack.MessageEvent{
+		Msg: message,
+	}
+
+	err = m.OnNewMessage(e)
+	if err != nil {
+		t.Fatal("encountered an unexpected error handling an OnTeamJoined event:", err)
+	}
+
+	if client.lastChannel != e.Channel {
+		t.Error("sent message to", client.lastChannel, "expected message to go to", e.Channel)
+	}
+
+	expected := "https://img.memesuper.com/bc7ab2796bdb983d5434fc842efcee0b_coming-to-america-aha-meme-coming-to-america_500-263.gif"
+
+	if !client.params.AsUser {
+		t.Error("expected message to be posted as the Cleo McDowell!")
+	}
+
+	if !client.params.UnfurlLinks {
+		t.Error("expected links to be unfurled!")
+	}
+
+	if len(client.params.Attachments) == 0 {
+		t.Fatal("expected there to be at least one attachment!")
+	}
+
+	if client.params.Attachments[0].ImageURL != expected {
+		t.Fatal("incorrect queen to be reaction url! got:", client.params.Attachments[0].ImageURL)
+	}
+}
+
 func TestIgnoresBotMessages(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
