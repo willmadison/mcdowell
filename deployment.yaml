@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: atlblacktech-slack-bot
-        image: eu.gcr.io/atlblacktech-slack-bot/mcdowell:latest
+        image: gcr.io/atlblacktech-slack-bot/mcdowell:latest
         ports:
          - name: healthy-port
            containerPort: 8088
