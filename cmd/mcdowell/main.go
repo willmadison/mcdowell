@@ -43,6 +43,8 @@ func main() {
 	}
 
 	go func() {
+		log.Println("listening for incoming events from slack...")
+
 		for msg := range rtm.IncomingEvents {
 			switch message := msg.Data.(type) {
 			case *slack.MessageEvent:
@@ -75,6 +77,6 @@ func main() {
 		log.Fatal(s.ListenAndServe())
 	}()
 
-	log.Println("McDowell is now running")
+	log.Println("McDowell's is now open for business!!!")
 	select {}
 }
