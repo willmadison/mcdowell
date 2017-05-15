@@ -27,7 +27,7 @@ docker run --rm \
         -e CGO_ENABLED=0 \
         -w "${CONTAINER_PROJECT_DIR}" \
         golang:1.8.1-alpine \
-        go build -v ${PROJECT_NAME}/cmd/mcdowell -ldflags "-X main.version=${TRAVIS_JOB_NUMBER}"
+        go build -v -ldflags "-X main.version=${TRAVIS_JOB_NUMBER}" ${PROJECT_NAME}/cmd/mcdowell
 
 docker build -f ${PROJECT_DIR}/Dockerfile \
     -t ${CONTAINER_NAME}:${TRAVIS_JOB_NUMBER} \
