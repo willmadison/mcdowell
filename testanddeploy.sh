@@ -17,7 +17,7 @@ docker run --rm \
     -e CI=true \
     -e GOPATH=${CONTAINER_PROJECT_GOPATH} \
     -w "${CONTAINER_PROJECT_DIR}" \
-    golang:1.8.1-alpine \
+    golang:1.10.0-alpine \
     go test
 
 docker run --rm \
@@ -26,7 +26,7 @@ docker run --rm \
         -e GOPATH=${CONTAINER_PROJECT_GOPATH} \
         -e CGO_ENABLED=0 \
         -w "${CONTAINER_PROJECT_DIR}" \
-        golang:1.8.1-alpine \
+        golang:1.10.0-alpine \
         go build -v -ldflags "-X main.version=${TRAVIS_JOB_NUMBER}" ${PROJECT_NAME}/cmd/mcdowell
 
 docker build -f ${PROJECT_DIR}/Dockerfile \
