@@ -1,44 +1,43 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-set -ev
-
-CONTAINER_NAME=gcr.io/atlblacktech-slack-bot/mcdowell
+PROJECT_ID="atlblacktech-slack-bot"
+REGION="us-central1"
+REPO="containers"
+IMAGE="mcdowell"
+BUILD_VERSION="${CIRCLE_BUILD_NUM}.$((CIRCLE_NODE_INDEX + 1))"
 
 PROJECT_NAME='github.com/willmadison/mcdowell'
-PROJECT_DIR=${PWD}
-
+PROJECT_DIR="${PWD}"
 CONTAINER_PROJECT_ROOT='/root'
 CONTAINER_PROJECT_DIR="${CONTAINER_PROJECT_ROOT}/${PROJECT_NAME}"
-BUILD_VERSION=${CIRCLE_BUILD_NUM}.$((CIRCLE_NODE_INDEX + 1))
-
-echo "Current directory contents.... $PROJECT_DIR"
-
-ls -Flah $PROJECT_DIR
 
 docker run --rm \
-    --net="host" \
-    -v ${PROJECT_DIR}:${CONTAINER_PROJECT_DIR} \
-    -e CI=true \
-    -w "${CONTAINER_PROJECT_DIR}" \
-    golang:1.22.5-alpine \
-    go test
+  --net="host" \
+  -v "${PROJECT_DIR}:${CONTAINER_PROJECT_DIR}" \
+  -e CI=true \
+  -w "${CONTAINER_PROJECT_DIR}" \
+  golang:1.22.5-alpine \
+  go test -v
 
 docker run --rm \
-        --net="host" \
-        -v ${PROJECT_DIR}:${CONTAINER_PROJECT_DIR} \
-        -e CGO_ENABLED=0 \
-        -w "${CONTAINER_PROJECT_DIR}" \
-        golang:1.22.5-alpine \
-        go build -v -ldflags "-X main.version=${BUILD_VERSION}" ${PROJECT_NAME}/cmd/mcdowell
+  --net="host" \
+  -v "${PROJECT_DIR}:${CONTAINER_PROJECT_DIR}" \
+  -e CGO_ENABLED=0 \
+  -w "${CONTAINER_PROJECT_DIR}" \
+  golang:1.22.5-alpine \
+  go build -v -ldflags "-X main.version=${BUILD_VERSION}" ${PROJECT_NAME}/cmd/${IMAGE}
 
-gcloud auth configure-docker
+gcloud auth configure-docker "${REGION}-docker.pkg.dev"
 
-docker build -f ${PROJECT_DIR}/Dockerfile \
-    -t ${CONTAINER_NAME}:${BUILD_VERSION} \
-    "${PROJECT_DIR}"
+AR_IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}:${BUILD_VERSION}"
+AR_LATEST="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}:latest"
 
-docker tag ${CONTAINER_NAME}:${BUILD_VERSION} ${CONTAINER_NAME}:latest
+docker build -f "${PROJECT_DIR}/Dockerfile" -t "${AR_IMAGE}" "${PROJECT_DIR}"
+docker tag "${AR_IMAGE}" "${AR_LATEST}"
 
-docker push us-central1-docker.pkg.dev/atlblacktech-slack-bot/mcdowell:${BUILD_VERSION}
+docker push "${AR_IMAGE}"
+docker push "${AR_LATEST}"
 
-sudo kubectl set image deployment/atlblacktech-slack-bot atlblacktech-slack-bot=gcr.io/atlblacktech-slack-bot/mcdowell:${BUILD_VERSION}
+kubectl set image deployment/atlblacktech-slack-bot \
+  atlblacktech-slack-bot="${AR_IMAGE}"
