@@ -18,6 +18,11 @@ jobs:
       # GCLOUD_SERVICE_CREDS: base64-encoded JSON of the service account key
     working_directory: /go/src/github.com/willmadison/mcdowell
     steps:
+      - run: |
+          apk add --no-cache sudo
+          sudo mkdir -p /go/src/github.com/willmadison
+          sudo chown -R $(id -u):$(id -g) /go
+
       - checkout
 
       # If your script builds Docker images, enable remote Docker
