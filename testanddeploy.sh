@@ -3,7 +3,7 @@ set -euo pipefail
 
 PROJECT_ID="atlblacktech-slack-bot"
 REGION="us-central1"
-REPO="containers"
+REPO="us.gcr.io"
 IMAGE="mcdowell"
 BUILD_VERSION="${CIRCLE_BUILD_NUM}.$((CIRCLE_NODE_INDEX + 1))"
 
