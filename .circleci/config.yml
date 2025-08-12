@@ -2,7 +2,9 @@ version: 2.1
 
 jobs:
   build_deploy:
-    executor: linux
+    machine:
+      image: ubuntu-2204:current
+    resource_class: medium
     environment:
       PROJECT_NAME: "atlblacktech-slack-bot"
       CLUSTER_NAME: "atlblacktech-slack-bot"
@@ -10,8 +12,6 @@ jobs:
       # Expect these to be set in CircleCI Project Settings → Environment Variables:
       # ACCOUNT_ADDRESS: your-service-account@project.iam.gserviceaccount.com
       # GCLOUD_SERVICE_CREDS: base64-encoded JSON of the service account key
-    machine:
-      image: ubuntu-2204:current
     steps:
       - checkout
 
