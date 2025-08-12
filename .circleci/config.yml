@@ -1,0 +1,62 @@
+version: 2.1
+
+executors:
+  linux:
+    docker:
+      - image: cimg/base:stable   # Ubuntu-based; has sudo
+    resource_class: medium
+
+jobs:
+  build_deploy:
+    executor: linux
+    environment:
+      PROJECT_NAME: "atlblacktech-slack-bot"
+      CLUSTER_NAME: "atlblacktech-slack-bot"
+      CLOUDSDK_COMPUTE_ZONE: "us-east1-c"
+      # Expect these to be set in CircleCI Project Settings → Environment Variables:
+      # ACCOUNT_ADDRESS: your-service-account@project.iam.gserviceaccount.com
+      # GCLOUD_SERVICE_CREDS: base64-encoded JSON of the service account key
+    steps:
+      - checkout
+
+      # If your script builds Docker images, enable remote Docker
+      - setup_remote_docker:
+          version: default
+
+      - run:
+          name: Install Google Cloud SDK & kubectl
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y apt-transport-https ca-certificates gnupg lsb-release
+            echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk $(lsb_release -c -s) main" | sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list
+            curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+            sudo apt-get update
+            sudo apt-get install -y google-cloud-sdk kubectl
+
+      - run:
+          name: Authenticate to GCP
+          command: |
+            echo "$GCLOUD_SERVICE_CREDS" | base64 --decode --ignore-garbage > "${HOME}/gcloud-service-key.json"
+            gcloud auth activate-service-account "$ACCOUNT_ADDRESS" --key-file "${HOME}/gcloud-service-key.json"
+            gcloud -q config set project "${PROJECT_NAME}"
+            gcloud -q config set compute/zone "${CLOUDSDK_COMPUTE_ZONE}"
+
+      - run:
+          name: Get GKE credentials
+          command: |
+            gcloud -q container clusters get-credentials "${CLUSTER_NAME}"
+            # If you push Docker images to GCR/Artifact Registry, uncomment one of the below:
+            # gcloud auth configure-docker gcr.io --quiet
+            # gcloud auth configure-docker us-docker.pkg.dev --quiet
+
+      - run:
+          name: Test and Deploy
+          command: |
+            chmod +x ./testanddeploy.sh
+            ./testanddeploy.sh
+
+workflows:
+  version: 2
+  ci:
+    jobs:
+      - build_deploy
