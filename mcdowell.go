@@ -27,7 +27,7 @@ type (
 
 	// SlackClient represents the interface of methods we rely on from the Slack client.
 	SlackClient interface {
-		PostMessage(channel, message string, params slack.PostMessageParameters) (string, string, error)
+		PostMessage(channel string, options ...slack.MsgOption) (string, string, error)
 		GetUsers() ([]slack.User, error)
 	}
 )
@@ -67,8 +67,12 @@ func (b *Bot) initialize() error {
 
 	log.Printf("Initialized %s with ID: %s\n", b.name, b.id)
 
-	params := slack.PostMessageParameters{AsUser: true}
-	_, _, err = b.client.PostMessage(b.contributors["willmadison"], fmt.Sprintf(`sucessfully deployed %s v%s...`, b.name, b.Version), params)
+	message := fmt.Sprintf(`sucessfully deployed %s v%s...`, b.name, b.Version)
+
+	_, _, err = b.client.PostMessage(b.contributors["willmadison"],
+		slack.MsgOptionAsUser(true),
+		slack.MsgOptionText(message, false),
+	)
 	if err != nil {
 		log.Printf(`failed to notify @willmadison regarding %s deployment`, b.name)
 	}
@@ -84,8 +88,13 @@ I’d like to welcome you to the Atlanta Black Tech Family. Our mission is to im
 
 Please click on “Channels” to browse all of our sub-communities, and join the ones that are most relevant to you. Enjoy your time, and help us build the communities by inviting others in your network.`
 
-	params := slack.PostMessageParameters{AsUser: true, LinkNames: 1}
-	_, _, err := b.client.PostMessage(event.User.ID, message, params)
+	_, _, err := b.client.PostMessage(event.User.ID,
+		slack.MsgOptionAsUser(true),
+		slack.MsgOptionText(message, false),
+		slack.MsgOptionPostMessageParameters(slack.PostMessageParameters{
+			LinkNames: 1,
+		}),
+	)
 
 	return err
 }
@@ -99,37 +108,43 @@ var botEventTextToResponses = map[string]func(*Bot, *slack.MessageEvent) error{
 
 func heHasHisOwnMoney(message string) func(*Bot, *slack.MessageEvent) error {
 	return func(b *Bot, event *slack.MessageEvent) error {
-		params := slack.PostMessageParameters{AsUser: true, UnfurlLinks: true}
-		params.Attachments = []slack.Attachment{
-			{
-				Text:     message,
-				ImageURL: "https://novembrepleut.files.wordpress.com/2011/06/zamundamoney_100.png",
-			},
-		}
-		_, _, err := b.client.PostMessage(event.Channel, "", params)
+		_, _, err := b.client.PostMessage(event.Channel,
+			slack.MsgOptionAsUser(true),
+			slack.MsgOptionEnableLinkUnfurl(),
+			slack.MsgOptionAttachments(
+				slack.Attachment{
+					Text:     message,
+					ImageURL: "https://novembrepleut.files.wordpress.com/2011/06/zamundamoney_100.png",
+				},
+			),
+		)
 		return err
 	}
 }
 
 func soulGlo(b *Bot, event *slack.MessageEvent) error {
-	params := slack.PostMessageParameters{AsUser: true, UnfurlLinks: true}
-	params.Attachments = []slack.Attachment{
-		{
-			ImageURL: "https://media.giphy.com/media/3Gz3vy81HkDa8/giphy.gif",
-		},
-	}
-	_, _, err := b.client.PostMessage(event.Channel, "", params)
+	_, _, err := b.client.PostMessage(event.Channel,
+		slack.MsgOptionAsUser(true),
+		slack.MsgOptionEnableLinkUnfurl(),
+		slack.MsgOptionAttachments(
+			slack.Attachment{
+				ImageURL: "https://media.giphy.com/media/3Gz3vy81HkDa8/giphy.gif",
+			},
+		),
+	)
 	return err
 }
 
 func queenToBe(b *Bot, event *slack.MessageEvent) error {
-	params := slack.PostMessageParameters{AsUser: true, UnfurlLinks: true}
-	params.Attachments = []slack.Attachment{
-		{
-			ImageURL: "https://img.memesuper.com/bc7ab2796bdb983d5434fc842efcee0b_coming-to-america-aha-meme-coming-to-america_500-263.gif",
-		},
-	}
-	_, _, err := b.client.PostMessage(event.Channel, "", params)
+	_, _, err := b.client.PostMessage(event.Channel,
+		slack.MsgOptionAsUser(true),
+		slack.MsgOptionEnableLinkUnfurl(),
+		slack.MsgOptionAttachments(
+			slack.Attachment{
+				ImageURL: "https://img.memesuper.com/bc7ab2796bdb983d5434fc842efcee0b_coming-to-america-aha-meme-coming-to-america_500-263.gif",
+			},
+		),
+	)
 	return err
 }
 

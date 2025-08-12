@@ -1,7 +1,7 @@
 package slack
 
 import (
-	"errors"
+	"context"
 	"net/url"
 )
 
@@ -18,25 +18,36 @@ type botResponseFull struct {
 	SlackResponse
 }
 
-func botRequest(path string, values url.Values, debug bool) (*botResponseFull, error) {
+func (api *Client) botRequest(ctx context.Context, path string, values url.Values) (*botResponseFull, error) {
 	response := &botResponseFull{}
-	err := post(path, values, response, debug)
+	err := api.postMethod(ctx, path, values, response)
 	if err != nil {
 		return nil, err
 	}
-	if !response.Ok {
-		return nil, errors.New(response.Error)
+
+	if err := response.Err(); err != nil {
+		return nil, err
 	}
+
 	return response, nil
 }
 
 // GetBotInfo will retrieve the complete bot information
 func (api *Client) GetBotInfo(bot string) (*Bot, error) {
+	return api.GetBotInfoContext(context.Background(), bot)
+}
+
+// GetBotInfoContext will retrieve the complete bot information using a custom context
+func (api *Client) GetBotInfoContext(ctx context.Context, bot string) (*Bot, error) {
 	values := url.Values{
-		"token": {api.config.token},
-		"bot":   {bot},
+		"token": {api.token},
 	}
-	response, err := botRequest("bots.info", values, api.debug)
+
+	if bot != "" {
+		values.Add("bot", bot)
+	}
+
+	response, err := api.botRequest(ctx, "bots.info", values)
 	if err != nil {
 		return nil, err
 	}
