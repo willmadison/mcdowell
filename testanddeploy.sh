@@ -18,7 +18,7 @@ if ! gcloud artifacts repositories describe "$REPO" \
       --project="$PROJECT_ID" >/dev/null 2>&1; then
   echo "Creating Artifact Registry repo: $REPO in $REGION"
   gcloud artifacts repositories create "$REPO" \
-    --repository-format="$FORMAT" \
+    --repository-format="docker" \
     --location="$REGION" \
     --project="$PROJECT_ID" \
     --quiet
