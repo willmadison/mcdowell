@@ -31,13 +31,14 @@ docker run --rm \
         golang:1.22.5-alpine \
         go build -v -ldflags "-X main.version=${BUILD_VERSION}" ${PROJECT_NAME}/cmd/mcdowell
 
+gcloud auth configure-docker
+
 docker build -f ${PROJECT_DIR}/Dockerfile \
     -t ${CONTAINER_NAME}:${BUILD_VERSION} \
     "${PROJECT_DIR}"
 
-rm -f "${PROJECT_DIR}/mcdowell"
-
 docker tag ${CONTAINER_NAME}:${BUILD_VERSION} ${CONTAINER_NAME}:latest
 
-sudo gcloud docker -- push gcr.io/atlblacktech-slack-bot/mcdowell
+docker push us-central1-docker.pkg.dev/atlblacktech-slack-bot/mcdowell:${BUILD_VERSION}
+
 sudo kubectl set image deployment/atlblacktech-slack-bot atlblacktech-slack-bot=gcr.io/atlblacktech-slack-bot/mcdowell:${BUILD_VERSION}
