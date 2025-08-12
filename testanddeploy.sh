@@ -19,7 +19,7 @@ docker run --rm \
     -e GOPATH=${CONTAINER_PROJECT_GOPATH} \
     -w "${CONTAINER_PROJECT_DIR}" \
     golang:1.10.0-alpine \
-    go test ./...
+    go test
 
 docker run --rm \
         --net="host" \
