@@ -3,7 +3,7 @@ set -euo pipefail
 
 PROJECT_ID="atlblacktech-slack-bot"
 REGION="us-central1"
-REPO="us.gcr.io"
+REPO="containers"
 IMAGE="mcdowell"
 BUILD_VERSION="${CIRCLE_BUILD_NUM}.$((CIRCLE_NODE_INDEX + 1))"
 
@@ -11,6 +11,20 @@ PROJECT_NAME='github.com/willmadison/mcdowell'
 PROJECT_DIR="${PWD}"
 CONTAINER_PROJECT_ROOT='/root'
 CONTAINER_PROJECT_DIR="${CONTAINER_PROJECT_ROOT}/${PROJECT_NAME}"
+
+# 1) Create repo if it doesn't exist
+if ! gcloud artifacts repositories describe "$REPO" \
+      --location="$REGION" \
+      --project="$PROJECT_ID" >/dev/null 2>&1; then
+  echo "Creating Artifact Registry repo: $REPO in $REGION"
+  gcloud artifacts repositories create "$REPO" \
+    --repository-format="$FORMAT" \
+    --location="$REGION" \
+    --project="$PROJECT_ID" \
+    --quiet
+else
+  echo "Artifact Registry repo already exists: $REPO"
+fi
 
 docker run --rm \
   --net="host" \
@@ -28,7 +42,7 @@ docker run --rm \
   golang:1.22.5-alpine \
   go build -v -ldflags "-X main.version=${BUILD_VERSION}" ${PROJECT_NAME}/cmd/${IMAGE}
 
-gcloud auth configure-docker "${REGION}-docker.pkg.dev"
+gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
 
 AR_IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}:${BUILD_VERSION}"
 AR_LATEST="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}:latest"
