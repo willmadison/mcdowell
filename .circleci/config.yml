@@ -1,11 +1,5 @@
 version: 2.1
 
-executors:
-  linux:
-    docker:
-      - image: cimg/base:stable   # Ubuntu-based; has sudo
-    resource_class: medium
-
 jobs:
   build_deploy:
     executor: linux
@@ -20,10 +14,6 @@ jobs:
       image: ubuntu-2204:current
     steps:
       - checkout
-
-      # If your script builds Docker images, enable remote Docker
-      - setup_remote_docker:
-          version: default
 
       - run:
           name: Install Google Cloud SDK & kubectl
