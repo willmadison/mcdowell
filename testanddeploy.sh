@@ -7,9 +7,13 @@ CONTAINER_NAME=gcr.io/atlblacktech-slack-bot/mcdowell
 PROJECT_NAME='github.com/willmadison/mcdowell'
 PROJECT_DIR=${PWD}
 
-CONTAINER_PROJECT_ROOT='~/'
+CONTAINER_PROJECT_ROOT='/root/'
 CONTAINER_PROJECT_DIR="${CONTAINER_PROJECT_ROOT}/${PROJECT_NAME}"
 BUILD_VERSION=${CIRCLE_BUILD_NUM}.$((CIRCLE_NODE_INDEX + 1))
+
+echo "Current directory contents.... $PROJECT_DIR"
+
+ls -Flah $PROJECT_DIR
 
 docker run --rm \
     --net="host" \
